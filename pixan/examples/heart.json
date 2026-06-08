@@ -1,0 +1,34 @@
+{
+  "name": "heart",
+  "w": 9,
+  "h": 8,
+  "fps": 4,
+  "palette": {
+    ".": null,
+    "R": "#ff2244",
+    "r": "#cc1133",
+    "p": "#ff88aa"
+  },
+  "frames": [
+    [
+      ".Rr.Rr..",
+      "RRrRRrRR",
+      "RRRRRrRR",
+      "RRRRRrR.",
+      ".RRRRr..",
+      "..RRr...",
+      "...Rr...",
+      "....R...."
+    ],
+    [
+      ".RR.RR...",
+      "RpRRRRpR.",
+      "RpRRRRpR.",
+      "RRRRRrRR.",
+      ".RRRRr...",
+      "..RRr....",
+      "...R.....",
+      "........."
+    ]
+  ]
+}

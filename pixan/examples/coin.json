@@ -1,0 +1,56 @@
+{
+  "name": "coin",
+  "w": 8,
+  "h": 8,
+  "fps": 8,
+  "palette": {
+    ".": null,
+    "G": "#ffd700",
+    "g": "#ffb800",
+    "s": "#ffe566",
+    "d": "#aa7700",
+    "D": "#664400"
+  },
+  "frames": [
+    [
+      ".GGGGsG.",
+      "GGssGGGG",
+      "GsGGGGGG",
+      "GGGGGGsG",
+      "GGGGGGsG",
+      "GsGGGGGG",
+      "GGssGGGG",
+      ".GGGGsG."
+    ],
+    [
+      "..GGGGGs",
+      ".GGGssGG",
+      ".GGssGGG",
+      ".GssGGGG",
+      ".GssGGGG",
+      ".GGssGGG",
+      ".GGGssGG",
+      "..GGGGGs"
+    ],
+    [
+      "...GGGG.",
+      "..GddGG.",
+      ".GdddGG.",
+      ".GdddGG.",
+      ".GdddGG.",
+      ".GdddGG.",
+      "..GddGG.",
+      "...GGGG."
+    ],
+    [
+      "...dddd.",
+      "..DDDD..",
+      ".DDDDD..",
+      ".DDDDD..",
+      ".DDDDD..",
+      ".DDDDD..",
+      "..DDDD..",
+      "...dddd."
+    ]
+  ]
+}

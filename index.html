@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Art Talking Person</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1a1a2e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: monospace;
+  }
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 3px solid #444;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const PIXEL = 8;
+const COLS = 32;
+const ROWS = 40;
+canvas.width = COLS * PIXEL;
+canvas.height = ROWS * PIXEL;
+canvas.style.width = (COLS * PIXEL * 2) + 'px';
+canvas.style.height = (ROWS * PIXEL * 2) + 'px';
+
+const SKIN = '#f5c6a0';
+const SKIN_SHADOW = '#d4a276';
+const HAIR = '#3a2212';
+const EYE = '#222';
+const EYE_WHITE = '#fff';
+const MOUTH = '#c0392b';
+const MOUTH_INSIDE = '#7b241c';
+const SHIRT = '#2e86de';
+const SHIRT_SHADOW = '#1b4f7a';
+const BG = '#1a1a2e';
+const SPEECH_BG = '#fff';
+const SPEECH_BORDER = '#333';
+const TEXT_COLOR = '#222';
+
+function px(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * PIXEL, y * PIXEL, PIXEL, PIXEL);
+}
+
+function drawHair() {
+  const hairRows = [
+    [11,12,13,14,15,16,17,18,19,20],
+    [10,11,12,13,14,15,16,17,18,19,20,21],
+    [9,10,11,12,13,14,15,16,17,18,19,20,21,22],
+    [9,10,11,22],
+    [9,10,22],
+  ];
+  const startY = 4;
+  hairRows.forEach((cols, row) => {
+    cols.forEach(col => px(col, startY + row, HAIR));
+  });
+}
+
+function drawFace() {
+  for (let y = 8; y <= 18; y++) {
+    for (let x = 11; x <= 20; x++) {
+      px(x, y, SKIN);
+    }
+  }
+  for (let y = 9; y <= 17; y++) {
+    px(10, y, SKIN);
+    px(21, y, SKIN);
+  }
+  for (let y = 10; y <= 16; y++) {
+    px(22, y, SKIN_SHADOW);
+  }
+  px(11, 18, SKIN_SHADOW);
+  px(20, 18, SKIN_SHADOW);
+}
+
+function drawEyes(frame) {
+  const blinkFrame = frame % 80 === 0;
+
+  if (blinkFrame) {
+    px(13, 12, EYE);
+    px(14, 12, EYE);
+    px(18, 12, EYE);
+    px(19, 12, EYE);
+  } else {
+    px(13, 11, EYE_WHITE);
+    px(14, 11, EYE_WHITE);
+    px(13, 12, EYE);
+    px(14, 12, EYE);
+    px(18, 11, EYE_WHITE);
+    px(19, 11, EYE_WHITE);
+    px(18, 12, EYE);
+    px(19, 12, EYE);
+  }
+
+  px(12, 10, HAIR);
+  px(13, 10, HAIR);
+  px(14, 10, HAIR);
+  px(15, 10, HAIR);
+
+  px(17, 10, HAIR);
+  px(18, 10, HAIR);
+  px(19, 10, HAIR);
+  px(20, 10, HAIR);
+}
+
+function drawNose() {
+  px(15, 14, SKIN_SHADOW);
+  px(16, 14, SKIN_SHADOW);
+  px(16, 15, SKIN_SHADOW);
+}
+
+function drawMouth(frame) {
+  const cycle = Math.floor(frame / 6) % 4;
+
+  if (cycle === 0) {
+    px(14, 16, MOUTH);
+    px(15, 16, MOUTH);
+    px(16, 16, MOUTH);
+    px(17, 16, MOUTH);
+  } else if (cycle === 1) {
+    px(14, 16, MOUTH);
+    px(15, 16, MOUTH_INSIDE);
+    px(16, 16, MOUTH_INSIDE);
+    px(17, 16, MOUTH);
+    px(14, 17, MOUTH);
+    px(15, 17, MOUTH);
+    px(16, 17, MOUTH);
+    px(17, 17, MOUTH);
+  } else if (cycle === 2) {
+    px(13, 16, MOUTH);
+    px(14, 16, MOUTH_INSIDE);
+    px(15, 16, MOUTH_INSIDE);
+    px(16, 16, MOUTH_INSIDE);
+    px(17, 16, MOUTH_INSIDE);
+    px(18, 16, MOUTH);
+    px(13, 17, MOUTH);
+    px(14, 17, MOUTH_INSIDE);
+    px(15, 17, MOUTH_INSIDE);
+    px(16, 17, MOUTH_INSIDE);
+    px(17, 17, MOUTH_INSIDE);
+    px(18, 17, MOUTH);
+    px(14, 18, MOUTH);
+    px(15, 18, MOUTH);
+    px(16, 18, MOUTH);
+    px(17, 18, MOUTH);
+  } else {
+    px(14, 16, MOUTH);
+    px(15, 16, MOUTH_INSIDE);
+    px(16, 16, MOUTH_INSIDE);
+    px(17, 16, MOUTH);
+    px(14, 17, MOUTH);
+    px(15, 17, MOUTH);
+    px(16, 17, MOUTH);
+    px(17, 17, MOUTH);
+  }
+}
+
+function drawNeck() {
+  px(14, 19, SKIN);
+  px(15, 19, SKIN);
+  px(16, 19, SKIN);
+  px(17, 19, SKIN);
+  px(14, 20, SKIN);
+  px(15, 20, SKIN);
+  px(16, 20, SKIN);
+  px(17, 20, SKIN);
+}
+
+function drawBody() {
+  for (let y = 21; y <= 32; y++) {
+    const spread = Math.min(y - 21, 4);
+    for (let x = 10 - spread; x <= 21 + spread; x++) {
+      const isEdge = x === 10 - spread || x === 21 + spread;
+      px(x, y, isEdge ? SHIRT_SHADOW : SHIRT);
+    }
+  }
+
+  for (let x = 12; x <= 19; x++) {
+    px(x, 21, SHIRT_SHADOW);
+  }
+
+  px(15, 22, SHIRT_SHADOW);
+  px(16, 22, SHIRT_SHADOW);
+  px(15, 23, SHIRT_SHADOW);
+  px(16, 23, SHIRT_SHADOW);
+  px(15, 24, SHIRT_SHADOW);
+  px(16, 24, SHIRT_SHADOW);
+}
+
+function drawArms(frame) {
+  const wave = Math.floor(frame / 8) % 4;
+  const armOffsets = [0, -1, -2, -1];
+  const rightArmY = armOffsets[wave];
+
+  for (let y = 22; y <= 29; y++) {
+    px(5, y, SKIN);
+    px(4, y, SKIN_SHADOW);
+  }
+  px(4, 30, SKIN);
+  px(5, 30, SKIN);
+
+  for (let y = 22; y <= 29; y++) {
+    const adjustedY = y + rightArmY;
+    if (adjustedY >= 20) {
+      px(26, adjustedY, SKIN);
+      px(27, adjustedY, SKIN_SHADOW);
+    }
+  }
+  px(26, 29 + rightArmY, SKIN);
+  px(27, 29 + rightArmY, SKIN);
+  if (rightArmY <= -1) {
+    px(26, 30 + rightArmY, SKIN);
+    px(27, 30 + rightArmY, SKIN);
+  }
+}
+
+function drawSpeechBubble(frame) {
+  const cycle = Math.floor(frame / 12) % 3;
+  const messages = ["Hi!", "Hey!", ":)"];
+  const msg = messages[cycle];
+
+  const bx = 22;
+  const by = 2;
+  const bw = 9;
+  const bh = 5;
+
+  for (let y = by; y < by + bh; y++) {
+    for (let x = bx; x < bx + bw; x++) {
+      const isBorder = x === bx || x === bx + bw - 1 || y === by || y === by + bh - 1;
+      const isCorner = (x === bx && y === by) || (x === bx + bw - 1 && y === by) ||
+                       (x === bx && y === by + bh - 1) || (x === bx + bw - 1 && y === by + bh - 1);
+      if (isCorner) continue;
+      px(x, y, isBorder ? SPEECH_BORDER : SPEECH_BG);
+    }
+  }
+
+  px(bx + 1, by + bh, SPEECH_BORDER);
+  px(bx, by + bh + 1, SPEECH_BORDER);
+
+  ctx.fillStyle = TEXT_COLOR;
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(msg, (bx + bw / 2) * PIXEL, (by + 3.2) * PIXEL);
+}
+
+let frame = 0;
+
+function draw() {
+  ctx.fillStyle = BG;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  drawHair();
+  drawFace();
+  drawEyes(frame);
+  drawNose();
+  drawMouth(frame);
+  drawNeck();
+  drawBody();
+  drawArms(frame);
+  drawSpeechBubble(frame);
+
+  frame++;
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+</body>
+</html>

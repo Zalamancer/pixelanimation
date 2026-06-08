@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixAn Studio</title>
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #0f0f16;
+  --surface:  #18182a;
+  --panel:    #1f1f33;
+  --border:   #2e2e4a;
+  --accent:   #7c5cfc;
+  --accent2:  #fc5c7c;
+  --text:     #e0e0f0;
+  --text2:    #8888aa;
+  --green:    #44dd88;
+  --red:      #ff4466;
+  --yellow:   #ffcc44;
+  --mono:     'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 13px;
+  height: 100vh;
+  min-width: 860px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+header h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
+header h1 span { color: var(--accent); }
+.header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 300px 1fr 290px;
+  flex: 1;
+  overflow: hidden;
+  min-width: 860px;
+}
+.panel {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel:last-child { border-right: none; }
+.panel-header {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.panel-body { flex: 1; overflow-y: auto; padding: 12px; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Buttons ── */
+button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  transition: background 0.1s, border-color 0.1s;
+}
+button:hover { background: var(--border); border-color: #3e3e5a; }
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+button.primary:hover { background: #9070ff; }
+button.danger { border-color: var(--red); color: var(--red); }
+button.danger:hover { background: rgba(255,68,102,0.15); }
+button.success { border-color: var(--green); color: var(--green); }
+button.icon-btn {
+  padding: 4px 8px;
+  font-size: 14px;
+  min-width: 30px;
+}
+
+/* ── Inputs ── */
+input, select, textarea {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+input[type=password] { letter-spacing: 3px; }
+label { font-size: 11px; color: var(--text2); margin-bottom: 4px; display: block; }
+
+/* ── JSON Editor ── */
+#json-editor {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  flex: 1;
+  resize: none;
+  border-radius: 6px;
+  min-height: 300px;
+  tab-size: 2;
+}
+.editor-wrap { display: flex; flex-direction: column; height: 100%; gap: 8px; }
+
+/* ── Status bar ── */
+.status-bar {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.status-bar .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text2); flex-shrink: 0; }
+.status-bar.ok .dot { background: var(--green); }
+.status-bar.err .dot { background: var(--red); }
+.status-msg { flex: 1; color: var(--text2); }
+.status-bar.ok .status-msg { color: var(--green); }
+.status-bar.err .status-msg { color: var(--red); }
+
+/* ── Preview panel ── */
+#preview-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+.canvas-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 300px;
+}
+#preview-canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  box-shadow: 0 0 40px rgba(124,92,252,0.25);
+  border-radius: 2px;
+}
+
+/* ── Controls ── */
+.controls {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  width: 100%;
+}
+.controls .frame-info { font-size: 12px; color: var(--text2); margin-right: 4px; }
+.controls .fps-wrap { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.controls .fps-wrap label { margin: 0; white-space: nowrap; }
+#fps-slider { width: 80px; padding: 0; background: transparent; border: none; cursor: pointer; }
+
+/* ── Frame strip ── */
+.frame-strip {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  align-items: center;
+}
+.frame-thumb {
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  flex-shrink: 0;
+  transition: border-color 0.1s;
+}
+.frame-thumb.active { border-color: var(--accent); }
+.frame-thumb:hover  { border-color: #5a4aaa; }
+
+/* ── AI Generator Panel ── */
+.gen-section { margin-bottom: 16px; }
+.gen-section:last-child { margin-bottom: 0; }
+.gen-section h3 { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+
+.model-tag {
+  display: inline-block;
+  background: rgba(124,92,252,0.15);
+  border: 1px solid rgba(124,92,252,0.4);
+  color: var(--accent);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+#gen-log {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 8px;
+  min-height: 60px;
+  max-height: 120px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+.log-ok  { color: var(--green); }
+.log-err { color: var(--red); }
+.log-dim { color: var(--text2); }
+
+/* ── Examples ── */
+.example-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.example-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text2);
+  transition: border-color 0.1s, color 0.1s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.example-btn:hover { border-color: var(--accent); color: var(--text); }
+.example-btn canvas { image-rendering: pixelated; border-radius: 2px; }
+
+/* ── Info chip ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-size: 10px;
+  color: var(--text2);
+}
+
+/* ── Compression compare ── */
+.compress-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* ── Spinner ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <h1>Pix<span>An</span> Studio</h1>
+  <span class="chip">Compact Pixel Animation Format</span>
+  <div class="header-right">
+    <button onclick="downloadJSON()">⬇ Download JSON</button>
+    <button onclick="downloadCompressed()">⬇ Download RLE</button>
+    <button class="primary" onclick="applyEditor()">▶ Apply JSON</button>
+  </div>
+</header>
+
+<!-- ── Main Layout ── -->
+<div class="layout">
+
+  <!-- LEFT: JSON Editor -->
+  <div class="panel">
+    <div class="panel-header">
+      📄 JSON Editor
+      <button class="icon-btn" title="Format JSON" onclick="formatJSON()" style="margin-left:auto;font-size:11px;">{ }</button>
+      <button class="icon-btn" title="Copy" onclick="copyJSON()" style="font-size:11px;">⎘</button>
+    </div>
+    <div class="panel-body editor-wrap">
+      <textarea id="json-editor" spellcheck="false" oninput="onEditorInput()"></textarea>
+      <div id="status-bar" class="status-bar">
+        <div class="dot"></div>
+        <span class="status-msg" id="status-msg">Paste or load a PixAn JSON</span>
+        <div id="size-info" style="font-size:10px;color:var(--text2)"></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button onclick="applyEditor()" class="primary" style="flex:1">▶ Apply</button>
+        <button onclick="compressEditor()" title="RLE compress rows">⚡ Compress</button>
+        <button onclick="decompressEditor()" title="Expand RLE">↕ Expand</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: Preview -->
+  <div id="preview-panel" class="panel" style="border-right:1px solid var(--border)">
+    <div class="panel-header">
+      🎬 Preview
+      <div id="anim-name" style="margin-left:8px;color:var(--text);font-size:12px;text-transform:none;letter-spacing:0"></div>
+      <span id="dim-chip" class="chip" style="margin-left:auto;font-size:10px"></span>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="preview-canvas"></canvas>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="icon-btn" onclick="player?.prev()">◀</button>
+      <button class="icon-btn" id="play-btn" onclick="togglePlay()">▶</button>
+      <button class="icon-btn" onclick="player?.next()">▶</button>
+      <span class="frame-info" id="frame-info">— / —</span>
+      <div class="fps-wrap">
+        <label for="fps-slider">FPS</label>
+        <input type="range" id="fps-slider" min="1" max="30" value="8" oninput="changeFPS(this.value)">
+        <span id="fps-val" style="font-size:12px;min-width:20px">8</span>
+      </div>
+      <button onclick="exportCurrentFrame()" title="Export current frame as PNG" style="margin-left:4px;font-size:11px">⬇ PNG</button>
+    </div>
+
+    <!-- Frame strip -->
+    <div class="frame-strip" id="frame-strip"></div>
+  </div>
+
+  <!-- RIGHT: AI Generator -->
+  <div class="panel">
+    <div class="panel-header">
+      ✨ AI Generator
+      <span class="model-tag">claude-opus-4-6</span>
+    </div>
+    <div class="panel-body" style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- API Key -->
+      <div class="gen-section">
+        <h3>Anthropic API Key</h3>
+        <input type="password" id="api-key" placeholder="sk-ant-..." autocomplete="off">
+        <div style="margin-top:5px;font-size:10px;color:var(--text2)">Key stays in your browser — never sent anywhere but Anthropic.</div>
+      </div>
+
+      <!-- Prompt -->
+      <div class="gen-section">
+        <h3>Describe your animation</h3>
+        <textarea id="prompt" rows="4" placeholder="e.g. a spinning star, 12x12, gold color, 6 frames&#10;&#10;or: a walking robot, 16x20, 4 frames&#10;&#10;or: a glowing magic portal, 14x14"></textarea>
+      </div>
+
+      <!-- Generate -->
+      <button class="primary" id="gen-btn" onclick="generate()" style="width:100%;padding:9px">
+        ✨ Generate with Claude
+      </button>
+
+      <!-- Log -->
+      <div class="gen-section">
+        <h3>Log</h3>
+        <div id="gen-log"><span class="log-dim">Ready. Describe an animation above and click Generate.</span></div>
+      </div>
+
+      <!-- Examples -->
+      <div class="gen-section">
+        <h3>Built-in Examples</h3>
+        <div class="example-grid" id="example-grid"></div>
+      </div>
+
+      <!-- Format reference -->
+      <div class="gen-section">
+        <h3>Format Quick Reference</h3>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text2);line-height:1.7;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:10px">
+<span style="color:#7c5cfc">name</span>     string<br>
+<span style="color:#7c5cfc">w, h</span>     pixel dimensions<br>
+<span style="color:#7c5cfc">fps</span>      playback speed<br>
+<span style="color:#7c5cfc">palette</span>  char → "#hex" | null<br>
+<span style="color:#7c5cfc">frames</span>   array of [h × w-char rows]<br><br>
+<span style="color:#44dd88">RLE:</span> set <span style="color:#ffcc44">_rle:true</span>, rows become<br>
+"RRRR.." → "<span style="color:#ffcc44">4R</span>2."
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="engine.js"></script>
+<script>
+// ── Built-in examples ────────────────────────────────────────────────────────
+
+const EXAMPLES = {
+  flame: {"name":"flame","w":8,"h":10,"fps":10,"palette":{".":null,"w":"#ffffff","y":"#ffee44","o":"#ff8800","r":"#ee2200","d":"#881100"},"frames":[["...ww...","..wyyw..",".wyyyyw.","..yooy..",".yroor..","..rrr...",".rrrdr..","..rrdd..","...rdd..","....d..."],["....w...","...wyy..","..wyyy..",".wyyyyw.","..yooy..",".yroory.","..rrrrr.",".rrrdr..","..rrdd..","...dd..."],["..www...","..wyyw..",".wyyyyw.",".wyoowy.","..roor..","..rrdr..",".rrrrrr.","..rrrdd.","...rdd..","....d..."],["...w....","..wyyw..",".wyyyy..","wyyyyyw.",".yoooy..","..roor..",".rrrdr..","..rrrd..","...ddd..","....d..."]]},
+  coin:  {"name":"coin","w":8,"h":8,"fps":8,"palette":{".":null,"G":"#ffd700","g":"#ffb800","s":"#ffe566","d":"#aa7700","D":"#664400"},"frames":[[".GGGGsG.","GGssGGGG","GsGGGGGG","GGGGGGsG","GGGGGGsG","GsGGGGGG","GGssGGGG",".GGGGsG."],["..GGGGGs",".GGGssGG",".GGssGGG",".GssGGGG",".GssGGGG",".GGssGGG",".GGGssGG","..GGGGGs"],["...GGGG.","..GddGG.",".GdddGG.",".GdddGG.",".GdddGG.",".GdddGG.","..GddGG.","...GGGG."],["...dddd.","..DDDD..",".DDDDD..",".DDDDD..",".DDDDD..",".DDDDD..","..DDDD..","...dddd."]]},
+  heart: {"name":"heart","w":9,"h":8,"fps":4,"palette":{".":null,"R":"#ff2244","r":"#cc1133","p":"#ff88aa"},"frames":[[".Rr.Rr..","RRrRRrRR","RRRRRrRR","RRRRRrR.",".RRRRr..","..RRr...","...Rr...","....R...."],["..RR.RR..","RpRRRRpR","RpRRRRpR","RRRRRrRR",".RRRRr..","..RRr...","...R.....","........."]]},
+  slime: {"name":"slime","w":12,"h":10,"fps":6,"palette":{".":null,"G":"#44dd44","g":"#22aa22","L":"#88ff88","d":"#117711","e":"#ffffff","p":"#000000"},"frames":[["....GGG.....","..GGGGGGG...",".GGGGGGGGG..","GGGLLGGGGG..","GGLLGGGGGGd.","GGGGGGGGGGd.",".GGGGGGGGgd.","..GGGepGGd...","...Geppgd....","....GGGd...."],["....GGG.....","..GGGGGGG...",".GGGGGGGGG..","GGGLLGGGGGg.","GGLLGGGGGGg.","GGGGGGGGGGg.",".GGGGGGGGgg.","..GGGepGGg..","....Geppg....",".....GGg...."],["...GGGGG....","..GGGGGGG...",".GGGGGGGGGg.","GGGLLGGGGGg.","GGLLGGGGGGg.","GGGGGGGGGgg.",".GGGGepGGg..","..GGGeppGg..","...GGGGGg...","....GGGg...."],["....GGG.....","..GGGGGGG...",".GGGGGGGGg..","GGGGLLGGGg..","GGLLGGGGGgd.","GGGGGGGGGgd.",".GGGGepGggd.","..GGGeppgd..","....GGGgd....",".....GGd...."]]}
+};
+
+// Validate example frame dimensions on init
+Object.entries(EXAMPLES).forEach(([name, data]) => {
+  // Fix any row length mismatches silently
+  data.frames = data.frames.map(frame =>
+    frame.map(row => {
+      if (row.length < data.w) return row + '.'.repeat(data.w - row.length);
+      if (row.length > data.w) return row.slice(0, data.w);
+      return row;
+    }).slice(0, data.h).concat(
+      Array(Math.max(0, data.h - frame.length)).fill('.'.repeat(data.w))
+    )
+  );
+});
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let player     = null;
+let currentData = null;
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+
+window.addEventListener('DOMContentLoaded', () => {
+  buildExampleGrid();
+  loadData(EXAMPLES.flame);
+  // Restore API key from sessionStorage
+  const saved = sessionStorage.getItem('pixan_key');
+  if (saved) document.getElementById('api-key').value = saved;
+});
+
+// ── Load data ────────────────────────────────────────────────────────────────
+
+function loadData(data) {
+  try {
+    const parsed = PixAn.parse(data);
+    currentData = parsed;
+
+    const editor = document.getElementById('json-editor');
+    editor.value = JSON.stringify(parsed, null, 2);
+
+    const canvas = document.getElementById('preview-canvas');
+    const scale  = bestScale(parsed.w, parsed.h);
+
+    if (player) { player.destroy(); }
+    player = new PixAn.Player(canvas, parsed, { scale, bg: '#111' });
+    player.onFrame = updateFrameInfo;
+    player.play();
+
+    document.getElementById('play-btn').textContent = '⏸';
+    document.getElementById('fps-slider').value = parsed.fps || 8;
+    document.getElementById('fps-val').textContent = parsed.fps || 8;
+    document.getElementById('anim-name').textContent = parsed.name || '';
+    document.getElementById('dim-chip').textContent = `${parsed.w}×${parsed.h} · ${parsed.frames.length}f · ${parsed.fps}fps`;
+
+    buildFrameStrip(parsed, scale);
+    setStatus('ok', `Loaded "${parsed.name}" — ${parsed.w}×${parsed.h}, ${parsed.frames.length} frames`);
+    updateSizeInfo(parsed);
+  } catch (e) {
+    setStatus('err', e.message);
+  }
+}
+
+function bestScale(w, h) {
+  const maxW = window.innerWidth  * 0.38;
+  const maxH = window.innerHeight * 0.55;
+  return Math.max(2, Math.min(32, Math.floor(Math.min(maxW / w, maxH / h))));
+}
+
+// ── Editor ───────────────────────────────────────────────────────────────────
+
+let _editorTimer = null;
+function onEditorInput() {
+  clearTimeout(_editorTimer);
+  _editorTimer = setTimeout(() => {
+    try {
+      const data = JSON.parse(document.getElementById('json-editor').value);
+      PixAn.parse(data); // validate
+      setStatus('ok', 'Valid PixAn JSON');
+      updateSizeInfo(data);
+    } catch (e) {
+      setStatus('err', e.message);
+    }
+  }, 400);
+}
+
+function applyEditor() {
+  try {
+    const raw  = document.getElementById('json-editor').value;
+    const data = JSON.parse(raw);
+    loadData(data);
+  } catch (e) {
+    setStatus('err', e.message);
+  }
+}
+
+function formatJSON() {
+  try {
+    const val = JSON.parse(document.getElementById('json-editor').value);
+    document.getElementById('json-editor').value = JSON.stringify(val, null, 2);
+    setStatus('ok', 'Formatted');
+  } catch (e) {
+    setStatus('err', e.message);
+  }
+}
+
+function copyJSON() {
+  navigator.clipboard.writeText(document.getElementById('json-editor').value)
+    .then(() => setStatus('ok', 'Copied to clipboard!'));
+}
+
+function compressEditor() {
+  try {
+    const data = JSON.parse(document.getElementById('json-editor').value);
+    const compressed = PixAn.compress(data);
+    document.getElementById('json-editor').value = JSON.stringify(compressed, null, 2);
+    const r = PixAn.sizeReport(data);
+    setStatus('ok', `Compressed ${r.raw}B → ${r.rle}B (saved ${r.ratio})`);
+  } catch (e) { setStatus('err', e.message); }
+}
+
+function decompressEditor() {
+  try {
+    const data = JSON.parse(document.getElementById('json-editor').value);
+    const expanded = PixAn.decompress(data);
+    document.getElementById('json-editor').value = JSON.stringify(expanded, null, 2);
+    setStatus('ok', 'Expanded RLE encoding');
+  } catch (e) { setStatus('err', e.message); }
+}
+
+// ── Playback controls ────────────────────────────────────────────────────────
+
+function togglePlay() {
+  if (!player) return;
+  player.toggle();
+  document.getElementById('play-btn').textContent = player.playing ? '⏸' : '▶';
+}
+
+function changeFPS(val) {
+  document.getElementById('fps-val').textContent = val;
+  if (player) { player.data.fps = +val; }
+}
+
+function updateFrameInfo(idx) {
+  if (!currentData) return;
+  document.getElementById('frame-info').textContent =
+    `Frame ${idx + 1} / ${currentData.frames.length}`;
+  // Highlight active thumb
+  document.querySelectorAll('.frame-thumb').forEach((c, i) =>
+    c.classList.toggle('active', i === idx)
+  );
+}
+
+// ── Frame strip ──────────────────────────────────────────────────────────────
+
+function buildFrameStrip(data, fullScale) {
+  const strip   = document.getElementById('frame-strip');
+  strip.innerHTML = '';
+  const thumbScale = Math.max(1, Math.min(4, Math.floor(40 / Math.max(data.w, data.h))));
+
+  data.frames.forEach((_, i) => {
+    const c = document.createElement('canvas');
+    c.width  = data.w * thumbScale;
+    c.height = data.h * thumbScale;
+    c.className = 'frame-thumb';
+    c.title = `Frame ${i + 1}`;
+    c.onclick = () => { player?.pause(); player?.seek(i); document.getElementById('play-btn').textContent = '▶'; };
+    PixAn.renderFrame(c.getContext('2d'), data, i, { scale: thumbScale, bg: '#111' });
+    strip.appendChild(c);
+  });
+}
+
+// ── Export ───────────────────────────────────────────────────────────────────
+
+function exportCurrentFrame() {
+  if (!player || !currentData) return;
+  const scale = bestScale(currentData.w, currentData.h);
+  const urls  = PixAn.exportFramePNGs(currentData, { scale, bg: '#111' });
+  const a = document.createElement('a');
+  a.href     = urls[player.frameIndex];
+  a.download = `${currentData.name || 'frame'}_${player.frameIndex + 1}.png`;
+  a.click();
+}
+
+function downloadJSON() {
+  const val = document.getElementById('json-editor').value;
+  if (!val) return;
+  const a = document.createElement('a');
+  a.href     = 'data:application/json,' + encodeURIComponent(val);
+  a.download = (currentData?.name || 'animation') + '.pixan.json';
+  a.click();
+}
+
+function downloadCompressed() {
+  try {
+    const data       = JSON.parse(document.getElementById('json-editor').value);
+    const compressed = PixAn.compress(data);
+    const r = PixAn.sizeReport(data);
+    const a = document.createElement('a');
+    a.href     = 'data:application/json,' + encodeURIComponent(JSON.stringify(compressed));
+    a.download = (data.name || 'animation') + '.pixan.rle.json';
+    a.click();
+    setStatus('ok', `RLE saved — ${r.raw}B → ${r.rle}B (${r.ratio} smaller)`);
+  } catch (e) { setStatus('err', e.message); }
+}
+
+// ── Examples ─────────────────────────────────────────────────────────────────
+
+function buildExampleGrid() {
+  const grid = document.getElementById('example-grid');
+  Object.entries(EXAMPLES).forEach(([key, data]) => {
+    const btn  = document.createElement('div');
+    btn.className = 'example-btn';
+
+    const c    = document.createElement('canvas');
+    const s    = Math.floor(48 / Math.max(data.w, data.h));
+    c.width    = data.w * s;
+    c.height   = data.h * s;
+    PixAn.renderFrame(c.getContext('2d'), data, 0, { scale: s, bg: '#111' });
+
+    btn.appendChild(c);
+    btn.appendChild(document.createTextNode(data.name));
+    btn.onclick = () => loadData(EXAMPLES[key]);
+    grid.appendChild(btn);
+  });
+}
+
+// ── Status ───────────────────────────────────────────────────────────────────
+
+function setStatus(type, msg) {
+  const bar = document.getElementById('status-bar');
+  bar.className = `status-bar ${type}`;
+  document.getElementById('status-msg').textContent = msg;
+}
+
+function updateSizeInfo(data) {
+  const r = PixAn.sizeReport(data);
+  document.getElementById('size-info').textContent = `${r.raw}B raw / ${r.rle}B RLE`;
+}
+
+// ── Claude Generator ─────────────────────────────────────────────────────────
+
+async function generate() {
+  const apiKey = document.getElementById('api-key').value.trim();
+  const prompt = document.getElementById('prompt').value.trim();
+
+  if (!apiKey) { log('err', 'Please enter your Anthropic API key.'); return; }
+  if (!prompt) { log('err', 'Please describe the animation you want.'); return; }
+
+  sessionStorage.setItem('pixan_key', apiKey);
+
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating…';
+
+  log('dim', `Asking Claude for: "${prompt}"\n`);
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-allow-browser': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 4096,
+        system: PixAn.CLAUDE_SYSTEM,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error?.message || `HTTP ${res.status}`);
+
+    const text  = body.content[0].text;
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Claude returned no valid JSON. Try a more specific prompt.');
+
+    const data = JSON.parse(match[0]);
+    log('ok', `✓ Got "${data.name}" — ${data.w}×${data.h}, ${data.frames.length} frames, ${data.fps}fps`);
+
+    loadData(data);
+
+  } catch (e) {
+    log('err', '✗ ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate with Claude';
+  }
+}
+
+function log(type, msg) {
+  const el = document.getElementById('gen-log');
+  el.innerHTML = `<span class="log-${type}">${escapeHTML(msg)}</span>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function escapeHTML(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Keyboard shortcuts ───────────────────────────────────────────────────────
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+  if (e.code === 'ArrowRight') player?.next();
+  if (e.code === 'ArrowLeft')  player?.prev();
+});
+</script>
+</body>
+</html>

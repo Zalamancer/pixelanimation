@@ -1,0 +1,65 @@
+{
+  "name": "slime",
+  "w": 12,
+  "h": 10,
+  "fps": 6,
+  "palette": {
+    ".": null,
+    "G": "#44dd44",
+    "g": "#22aa22",
+    "L": "#88ff88",
+    "d": "#117711",
+    "e": "#ffffff",
+    "p": "#000000"
+  },
+  "frames": [
+    [
+      "....GGG.....",
+      "..GGGGGGG...",
+      ".GGGGGGGGG..",
+      "GGGLLGGGGG..",
+      "GGLLGGGGGGd.",
+      "GGGGGGGGGGd.",
+      ".GGGGGGGGgd.",
+      "..GGGepGGd..",
+      "...Geppgd...",
+      "....GGGd...."
+    ],
+    [
+      "....GGG.....",
+      "..GGGGGGG...",
+      ".GGGGGGGGG..",
+      "GGGLLGGGGGg.",
+      "GGLLGGGGGGg.",
+      "GGGGGGGGGGg.",
+      ".GGGGGGGGgg.",
+      "..GGGepGGg..",
+      "....Geppg...",
+      ".....GGg...."
+    ],
+    [
+      "...GGGGG....",
+      "..GGGGGGG...",
+      ".GGGGGGGGGg.",
+      "GGGLLGGGGGg.",
+      "GGLLGGGGGGg.",
+      "GGGGGGGGGgg.",
+      ".GGGGepGGg..",
+      "..GGGeppGg..",
+      "...GGGGGg...",
+      "....GGGg...."
+    ],
+    [
+      "....GGG.....",
+      "..GGGGGGG...",
+      ".GGGGGGGGg..",
+      "GGGGLLGGGg..",
+      "GGLLGGGGGgd.",
+      "GGGGGGGGGgd.",
+      ".GGGGepGggd.",
+      "..GGGeppgd..",
+      "....GGGgd...",
+      ".....GGd...."
+    ]
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "name": "flame",
+  "w": 8,
+  "h": 10,
+  "fps": 10,
+  "palette": {
+    ".": null,
+    "w": "#ffffff",
+    "y": "#ffee44",
+    "o": "#ff8800",
+    "r": "#ee2200",
+    "d": "#881100"
+  },
+  "frames": [
+    [
+      "...ww...",
+      "..wyyw..",
+      ".wyyyyw.",
+      "..yooy..",
+      ".yroor..",
+      "..rrr...",
+      ".rrrdr..",
+      "..rrdd..",
+      "...rdd..",
+      "....d..."
+    ],
+    [
+      "....w...",
+      "...wyy..",
+      "..wyyy..",
+      ".wyyyyw.",
+      "..yooy..",
+      ".yroory.",
+      "..rrrrr.",
+      ".rrrdr..",
+      "..rrdd..",
+      "...dd..."
+    ],
+    [
+      "..www...",
+      "..wyyw..",
+      ".wyyyyw.",
+      ".wyoowy.",
+      "..roor..",
+      "..rrdr..",
+      ".rrrrrr.",
+      "..rrrdd.",
+      "...rdd..",
+      "....d..."
+    ],
+    [
+      "...w....",
+      "..wyyw..",
+      ".wyyyy..",
+      "wyyyyyw.",
+      ".yoooy..",
+      "..roor..",
+      ".rrrdr..",
+      "..rrrd..",
+      "...ddd..",
+      "....d..."
+    ]
+  ]
+}

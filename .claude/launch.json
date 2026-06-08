@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "pixel-art",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "/Users/ihsanduru/pixelanimation", "-l", "3456"],
+      "port": 3456
+    }
+  ]
+}
